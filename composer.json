@@ -1,0 +1,30 @@
+{
+    "name": "jundayw/laravel-oauth",
+    "description": "Laravel OAuth provides a featherweight authentication system for SPAs and simple APIs.",
+    "keywords": ["laravel", "oauth", "auth"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "jundayw",
+            "email": "jundayw@126.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.2.0",
+        "ext-json": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Jundayw\\LaravelOAuth\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Jundayw\\LaravelOAuth\\OAuthServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

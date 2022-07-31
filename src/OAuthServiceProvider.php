@@ -6,6 +6,8 @@ use Illuminate\Auth\RequestGuard;
 use Illuminate\Contracts\Auth\Factory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
+use Jundayw\LaravelOAuth\Middleware\CheckForAnyScope;
+use Jundayw\LaravelOAuth\Middleware\CheckScopes;
 
 class OAuthServiceProvider extends ServiceProvider
 {
@@ -16,16 +18,12 @@ class OAuthServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        config([
-            'auth.guards.oauth' => array_merge([
-                'driver' => 'oauth',
-                'provider' => null,
-            ], config('auth.guards.oauth', [])),
-        ]);
-
         if (!app()->configurationIsCached()) {
             $this->mergeConfigFrom(__DIR__ . '/../config/oauth.php', 'oauth');
         }
+
+        $this->addMiddlewareAlias('scopes', CheckScopes::class);
+        $this->addMiddlewareAlias('scope', CheckForAnyScope::class);
     }
 
     /**
@@ -69,9 +67,9 @@ class OAuthServiceProvider extends ServiceProvider
      */
     protected function configureGuard()
     {
-        Auth::resolved(function($auth) {
-            $auth->extend('oauth', function($app, $name, array $config) use ($auth) {
-                return tap($this->createGuard($auth, $config), function($guard) {
+        Auth::resolved(function ($auth) {
+            $auth->extend('oauth', function ($app, $name, array $config) use ($auth) {
+                return tap($this->createGuard($auth, $config), function ($guard) {
                     $this->app->refresh('request', $guard, 'setRequest');
                 });
             });
@@ -88,10 +86,28 @@ class OAuthServiceProvider extends ServiceProvider
     protected function createGuard(Factory $auth, array $config): RequestGuard
     {
         return new RequestGuard(
-            new Guard($auth, $config['provider']),
+            new OAuthGuard($auth, $config['provider']),
             request(),
             $auth->createUserProvider($config['provider'] ?? null)
         );
+    }
+
+    /**
+     * Register the middleware.
+     *
+     * @param $name
+     * @param $class
+     * @return mixed
+     */
+    protected function addMiddlewareAlias($name, $class)
+    {
+        $router = $this->app['router'];
+
+        if (method_exists($router, 'aliasMiddleware')) {
+            return $router->aliasMiddleware($name, $class);
+        }
+
+        return $router->middleware($name, $class);
     }
 
 }

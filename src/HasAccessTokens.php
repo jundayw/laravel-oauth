@@ -7,8 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Jundayw\LaravelOAuth\Contracts\HasAccessTokensContract;
 use Jundayw\LaravelOAuth\Contracts\HasOAuthTokensContract;
-use Jundayw\LaravelOAuth\Exceptions\InvalidRefreshTokenException;
-use Jundayw\LaravelOAuth\Exceptions\RefreshTokenExpiredException;
 
 trait HasAccessTokens
 {
@@ -26,17 +24,18 @@ trait HasAccessTokens
      */
     public function tokens(): MorphMany
     {
-        return $this->morphMany(OAuth::$oAuthAccessTokenModel, 'tokenable');
+        return $this->morphMany(OAuth::oAuthTokenModel(), 'tokenable');
     }
 
     /**
-     * Create a new oauth access token for the user.
+     * Create a new access token for the user.
      *
      * @param string $name
      * @param string $device
+     * @param array $scopes
      * @return Token
      */
-    public function createToken(string $name, string $device): Token
+    public function createToken(string $name, string $device, array $scopes = ['*']): Token
     {
         $this->purgeToken($device);
 
@@ -47,6 +46,7 @@ trait HasAccessTokens
             'refresh_token' => hash(config('oauth.hash'), $plainTextRefreshToken = Str::random(40)),
             'access_token_expire_at' => now()->addSeconds(config('oauth.access_token_expire_in', 2 * 3600))->toDateTimeString(),
             'refresh_token_expire_at' => now()->addSeconds(config('oauth.refresh_token_expire_in', 24 * 3600))->toDateTimeString(),
+            'scopes' => $scopes,
         ]);
 
         return new Token($token, $plainTextAccessToken, $plainTextRefreshToken);
@@ -60,7 +60,7 @@ trait HasAccessTokens
      */
     private function purgeToken(string $device): int
     {
-        $multipleDevices  = config('oauth.multiple_devices');
+        $multipleDevices = config('oauth.multiple_devices');
         $concurrentDevice = config('oauth.concurrent_device');
 
         if ($multipleDevices && $concurrentDevice) {
@@ -73,12 +73,12 @@ trait HasAccessTokens
                 $this->tokens()->getForeignKeyName() => $this->tokens()->getParentKey(),
                 $this->tokens()->getMorphType() => $this->tokens()->getMorphClass(),
             ])
-            ->when($multipleDevices || $concurrentDevice, function($query) use ($multipleDevices, $concurrentDevice, $device) {
+            ->when($multipleDevices || $concurrentDevice, function ($query) use ($multipleDevices, $concurrentDevice, $device) {
                 $query
-                    ->unless($multipleDevices, function($query) use ($device) {
+                    ->unless($multipleDevices, function ($query) use ($device) {
                         $query->whereNotIn('device', [$device]);
                     })
-                    ->unless($concurrentDevice, function($query) use ($device) {
+                    ->unless($concurrentDevice, function ($query) use ($device) {
                         $query->where('device', $device);
                     });
             })
@@ -86,44 +86,14 @@ trait HasAccessTokens
     }
 
     /**
-     * Refresh a new oauth access token for the user.
+     * Determine if the current API token has a given scope.
      *
-     * @param Request $request
-     * @return Token
+     * @param string $scope
+     * @return bool
      */
-    public function refreshToken(Request $request): Token
+    public function tokenCan(string $scope): bool
     {
-        $refreshToken = $this->tokens()
-            ->getRelated()
-            ->where('refresh_token', $request->get('refresh_token'))
-            ->first();
-
-        if (is_null($refreshToken)) {
-            throw new InvalidRefreshTokenException();
-        }
-
-        if (now() > $refreshToken->getOriginal('refresh_token_expire_at')) {
-            throw new RefreshTokenExpiredException();
-        }
-
-        $fill = [
-            'access_token' => hash(config('oauth.hash'), $plainTextAccessToken = Str::random(40)),
-            'refresh_token' => hash(config('oauth.hash'), $plainTextRefreshToken = Str::random(40)),
-            'access_token_expire_at' => now()->addSeconds(config('oauth.access_token_expire_in', 2 * 3600))->toDateTimeString(),
-            'refresh_token_expire_at' => now()->addSeconds(config('oauth.refresh_token_expire_in', 24 * 3600))->toDateTimeString(),
-        ];
-
-        if (method_exists($refreshToken->getConnection(), 'hasModifiedRecords') &&
-            method_exists($refreshToken->getConnection(), 'setRecordModificationState')) {
-            tap($refreshToken->getConnection()->hasModifiedRecords(), function($hasModifiedRecords) use ($refreshToken, $fill) {
-                $refreshToken->forceFill($fill)->save();
-                $refreshToken->getConnection()->setRecordModificationState($hasModifiedRecords);
-            });
-        } else {
-            $refreshToken->forceFill($fill)->save();
-        }
-
-        return new Token($refreshToken, $plainTextAccessToken, $plainTextRefreshToken);
+        return $this->accessToken && $this->accessToken->can($scope);
     }
 
     /**

@@ -2,7 +2,6 @@
 
 namespace Jundayw\LaravelOAuth;
 
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Jundayw\LaravelOAuth\Contracts\HasOAuthTokensContract;
 use Jundayw\LaravelOAuth\Exceptions\AccessTokenExpiredException;
 use Jundayw\LaravelOAuth\Exceptions\InvalidAccessTokenException;
@@ -10,22 +9,12 @@ use Jundayw\LaravelOAuth\Exceptions\InvalidAccessTokenException;
 trait HasOAuthTokens
 {
     /**
-     * Get the tokenable model that the access token belongs to.
-     *
-     * @return MorphTo
-     */
-    public function tokenable(): MorphTo
-    {
-        return $this->morphTo('tokenable');
-    }
-
-    /**
      * Find the token instance matching the given token.
      *
      * @param string $token
      * @return HasOAuthTokensContract|null
      */
-    public static function findOAuthToken(string $token): ?HasOAuthTokensContract
+    public static function findAccessToken(string $token): ?HasOAuthTokensContract
     {
         if (($plaintext = Token::decrypt($token)) == false) {
             throw new InvalidAccessTokenException();
@@ -42,6 +31,29 @@ trait HasOAuthTokens
         }
 
         return $token;
+    }
+
+    /**
+     * Determine if the token has a given scope.
+     *
+     * @param string $scope
+     * @return bool
+     */
+    public function can(string $scope): bool
+    {
+        return in_array('*', $this->getAttribute('scopes')) ||
+            array_key_exists($scope, array_flip($this->getAttribute('scopes')));
+    }
+
+    /**
+     * Determine if the token is missing a given scope.
+     *
+     * @param string $scope
+     * @return bool
+     */
+    public function cant(string $scope): bool
+    {
+        return !$this->can($scope);
     }
 
 }

@@ -5,11 +5,18 @@ namespace Jundayw\LaravelOAuth;
 class OAuth
 {
     /**
-     * The oauth access token client model class name.
+     * The oauth token client model class name.
      *
      * @var string
      */
-    public static $oAuthAccessTokenModel = 'Jundayw\\LaravelOAuth\\OAuthAccessToken';
+    protected static $oAuthTokenModel = 'Jundayw\\LaravelOAuth\\OAuthToken';
+
+    /**
+     * The refresh token client model class name.
+     *
+     * @var string
+     */
+    protected static $refreshTokenModel = 'Jundayw\\LaravelOAuth\\RefreshToken';
 
     /**
      * A callback that can get the token from the request.
@@ -38,19 +45,40 @@ class OAuth
      * @param string $model
      * @return void
      */
-    public static function useOAuthAccessTokenModel(string $model)
+    public static function oAuthTokenModelUsing(string $model)
     {
-        static::$oAuthAccessTokenModel = $model;
+        static::$oAuthTokenModel = $model;
     }
 
     /**
-     * Get the oauth access token model class name.
+     * Get the oauth token model class name.
      *
      * @return string
      */
-    public static function oAuthAccessTokenModel(): string
+    public static function oAuthTokenModel(): string
     {
-        return static::$oAuthAccessTokenModel;
+        return static::$oAuthTokenModel;
+    }
+
+    /**
+     * Set the refresh access token model name.
+     *
+     * @param string $model
+     * @return void
+     */
+    public static function refreshTokenModelUsing(string $model)
+    {
+        static::$refreshTokenModel = $model;
+    }
+
+    /**
+     * Get the refresh token model class name.
+     *
+     * @return string
+     */
+    public static function refreshTokenModel(): string
+    {
+        return static::$refreshTokenModel;
     }
 
     /**

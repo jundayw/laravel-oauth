@@ -6,7 +6,7 @@ use Throwable;
 
 class InvalidAccessTokenException extends OAuthAccessTokenException
 {
-    public function __construct($message = "InvalidAccessTokenException", $code = 110, Throwable $previous = null)
+    public function __construct($message = 'Invalid access token.', $code = 41001, Throwable $previous = null)
     {
         parent::__construct($message, $code, $previous);
     }

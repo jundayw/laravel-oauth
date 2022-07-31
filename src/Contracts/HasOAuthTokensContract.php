@@ -2,22 +2,29 @@
 
 namespace Jundayw\LaravelOAuth\Contracts;
 
-use Illuminate\Database\Eloquent\Relations\MorphTo;
-
 interface HasOAuthTokensContract
 {
-    /**
-     * Get the tokenable model that the access token belongs to.
-     *
-     * @return MorphTo
-     */
-    public function tokenable(): MorphTo;
-
     /**
      * Find the token instance matching the given token.
      *
      * @param string $token
      * @return HasOAuthTokensContract|null
      */
-    public static function findOAuthToken(string $token): ?HasOAuthTokensContract;
+    public static function findAccessToken(string $token): ?HasOAuthTokensContract;
+
+    /**
+     * Determine if the token has a given scope.
+     *
+     * @param string $scope
+     * @return bool
+     */
+    public function can(string $scope): bool;
+
+    /**
+     * Determine if the token is missing a given scope.
+     *
+     * @param string $scope
+     * @return bool
+     */
+    public function cant(string $scope): bool;
 }

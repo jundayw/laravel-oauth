@@ -5,9 +5,9 @@ namespace Jundayw\LaravelOAuth\Exceptions;
 use RuntimeException;
 use Throwable;
 
-class OAuthAccessTokenException extends RuntimeException
+abstract class OAuthAccessTokenException extends RuntimeException
 {
-    public function __construct($message = "OAuthAccessTokenException", $code = 100, Throwable $previous = null)
+    public function __construct($message = '', $code = 40001, Throwable $previous = null)
     {
         parent::__construct($message, $code, $previous);
     }

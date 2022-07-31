@@ -1,15 +1,26 @@
 <?php
 
-namespace Jundayw\LaravelOAuth;
+namespace Jundayw\LaravelOAuth\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Jundayw\LaravelOAuth\Contracts\HasOAuthTokensContract;
 
-class OAuthAccessToken extends Model implements HasOAuthTokensContract
+class OAuth extends Model
 {
-    use HasOAuthTokens;
-
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
     protected $table;
+
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'scopes' => 'json',
+    ];
 
     /**
      * The attributes that are mass assignable.

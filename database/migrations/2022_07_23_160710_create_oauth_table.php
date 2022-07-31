@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('refresh_token')->unique()->comment('刷新凭证');
             $table->timestamp('access_token_expire_at')->nullable()->comment('凭证超时时间');
             $table->timestamp('refresh_token_expire_at')->nullable()->comment('刷新凭证超时时间');
+            $table->text('scopes')->nullable()->comment('授权作用域');
             $table->timestamp('last_used_at')->nullable()->comment('最近访问时间');
             $table->timestamp('created_at')->nullable()->comment('创建时间');
             $table->timestamp('updated_at')->nullable()->comment('最新更新时间');

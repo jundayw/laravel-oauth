@@ -9,7 +9,7 @@ use Jundayw\LaravelOAuth\Contracts\HasAccessTokensContract;
 use Jundayw\LaravelOAuth\Contracts\HasOAuthTokensContract;
 use Jundayw\LaravelOAuth\Events\TokenAuthenticated;
 
-class Guard
+class OAuthGuard
 {
     /**
      * The authentication factory implementation.
@@ -27,7 +27,7 @@ class Guard
 
     public function __construct(Factory $auth, string $provider = null)
     {
-        $this->auth     = $auth;
+        $this->auth = $auth;
         $this->provider = $provider;
     }
 
@@ -46,9 +46,9 @@ class Guard
             return null;
         }
 
-        $model = OAuth::$oAuthAccessTokenModel;
-
-        $accessToken = $model::findOAuthToken($token);
+        $accessToken = with(OAuth::oAuthTokenModel(), function ($oAuthAccessTokenModel) use ($token) {
+            return $oAuthAccessTokenModel::findAccessToken($token);
+        });
 
         if (!$this->isValidAccessToken($accessToken) || !$this->supportsTokens($accessToken->tokenable)) {
             return null;
@@ -66,7 +66,7 @@ class Guard
 
         if (method_exists($accessToken->getConnection(), 'hasModifiedRecords') &&
             method_exists($accessToken->getConnection(), 'setRecordModificationState')) {
-            tap($accessToken->getConnection()->hasModifiedRecords(), function($hasModifiedRecords) use ($accessToken, $fill) {
+            tap($accessToken->getConnection()->hasModifiedRecords(), function ($hasModifiedRecords) use ($accessToken, $fill) {
                 $accessToken->forceFill($fill)->save();
                 $accessToken->getConnection()->setRecordModificationState($hasModifiedRecords);
             });
@@ -86,7 +86,9 @@ class Guard
     protected function getTokenFromRequest(Request $request): ?string
     {
         if (is_callable(OAuth::$accessTokenRetrievalCallback)) {
-            return (OAuth::$accessTokenRetrievalCallback)($request);
+            return with(OAuth::$accessTokenRetrievalCallback, function ($accessTokenRetrievalCallback) use ($request) {
+                return $accessTokenRetrievalCallback($request);
+            });
         }
 
         return $request->bearerToken();
@@ -107,7 +109,9 @@ class Guard
         $isValid = $this->hasValidProvider($accessToken->tokenable);
 
         if (is_callable(OAuth::$accessTokenAuthenticationCallback)) {
-            $isValid = (OAuth::$accessTokenAuthenticationCallback)($accessToken, $isValid);
+            $isValid = with(OAuth::$accessTokenAuthenticationCallback, function ($accessTokenAuthenticationCallback) use ($accessToken, $isValid) {
+                return $accessTokenAuthenticationCallback($accessToken, $isValid);
+            });
         }
 
         return $isValid;

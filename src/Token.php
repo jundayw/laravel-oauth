@@ -5,7 +5,7 @@ namespace Jundayw\LaravelOAuth;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Support\Collection;
-use Jundayw\LaravelOAuth\Contracts\HasOAuthTokensContract;
+use Jundayw\LaravelOAuth\Contracts\HasTokenableContract;
 use Jundayw\LaravelOAuth\Support\Signature;
 
 class Token implements Arrayable, Jsonable
@@ -16,10 +16,10 @@ class Token implements Arrayable, Jsonable
     private $plainTextAccessToken;
     private $plainTextRefreshToken;
 
-    public function __construct(HasOAuthTokensContract $token, $plainTextAccessToken, $plainTextRefreshToken)
+    public function __construct(HasTokenableContract $token, $plainTextAccessToken, $plainTextRefreshToken)
     {
-        $this->token                 = $token;
-        $this->plainTextAccessToken  = $plainTextAccessToken;
+        $this->token = $token;
+        $this->plainTextAccessToken = $plainTextAccessToken;
         $this->plainTextRefreshToken = $plainTextRefreshToken;
     }
 

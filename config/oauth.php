@@ -2,7 +2,27 @@
 
 return [
 
-    'secret' => env('OAUTH_SECRET', env('APP_KEY', 'OAUTH_SECRET')),
+    /*
+    |--------------------------------------------------------------------------
+    | Encryption Keys
+    |--------------------------------------------------------------------------
+    |
+    | Use an encryption key when generating a secure access token for your application.
+    | This can be set via environment variables at a more convenient time.
+    |
+    */
+
+    'secret' => env('OAUTH_SECRET', env('APP_KEY')),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Encryption Algorithm
+    |--------------------------------------------------------------------------
+    |
+    | Supported: "md5", "sha256", "sha512", "ripemd128",
+    |            "ripemd256", "gost", "crc32", "joaat"
+    |
+    */
 
     'hash' => 'sha256',
 
@@ -11,11 +31,11 @@ return [
     | Table Name
     |--------------------------------------------------------------------------
     |
-    | This configuration value allows you to customize the table name
+    | This configuration value allows you to customize the table name.
     |
     */
 
-    'table' => 'oauth_test',
+    'table' => 'oauth',
 
     /*
     |--------------------------------------------------------------------------
@@ -31,6 +51,15 @@ return [
     'access_token_expire_in' => 2 * 3600,
 
     'refresh_token_expire_in' => 24 * 3600 * 15,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cache Devices
+    |--------------------------------------------------------------------------
+    |
+    | New features not implemented.
+    |
+    */
 
     'cache' => [
         'driver' => null,

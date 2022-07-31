@@ -16,21 +16,22 @@ interface HasAccessTokensContract
     public function tokens(): MorphMany;
 
     /**
-     * Create a new personal access token for the user.
+     * Create a new access token for the user.
      *
      * @param string $name
      * @param string $device
+     * @param array $scopes
      * @return Token
      */
-    public function createToken(string $name, string $device): Token;
+    public function createToken(string $name, string $device, array $scopes = ['*']): Token;
 
     /**
-     * Refresh a new oauth access token for the user.
+     * Determine if the current API token has a given scope.
      *
-     * @param Request $request
-     * @return Token
+     * @param string $scope
+     * @return bool
      */
-    public function refreshToken(Request $request): Token;
+    public function tokenCan(string $scope): bool;
 
     /**
      * Get the access token currently associated with the user.

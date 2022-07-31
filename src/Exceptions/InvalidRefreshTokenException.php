@@ -6,7 +6,7 @@ use Throwable;
 
 class InvalidRefreshTokenException extends OAuthAccessTokenException
 {
-    public function __construct($message = "InvalidRefreshTokenException", $code = 110, Throwable $previous = null)
+    public function __construct($message = 'Invalid refresh token.', $code = 42001, Throwable $previous = null)
     {
         parent::__construct($message, $code, $previous);
     }

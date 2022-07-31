@@ -18,8 +18,8 @@ class Token implements Arrayable, Jsonable
 
     public function __construct(HasTokenableContract $token, $plainTextAccessToken, $plainTextRefreshToken)
     {
-        $this->token = $token;
-        $this->plainTextAccessToken = $plainTextAccessToken;
+        $this->token                 = $token;
+        $this->plainTextAccessToken  = $plainTextAccessToken;
         $this->plainTextRefreshToken = $plainTextRefreshToken;
     }
 

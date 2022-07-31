@@ -27,7 +27,7 @@ class OAuthGuard
 
     public function __construct(Factory $auth, string $provider = null)
     {
-        $this->auth = $auth;
+        $this->auth     = $auth;
         $this->provider = $provider;
     }
 
@@ -46,7 +46,7 @@ class OAuthGuard
             return null;
         }
 
-        $accessToken = with(OAuth::oAuthTokenModel(), function ($oAuthAccessTokenModel) use ($token) {
+        $accessToken = with(OAuth::oAuthTokenModel(), function($oAuthAccessTokenModel) use ($token) {
             return $oAuthAccessTokenModel::findAccessToken($token);
         });
 
@@ -66,7 +66,7 @@ class OAuthGuard
 
         if (method_exists($accessToken->getConnection(), 'hasModifiedRecords') &&
             method_exists($accessToken->getConnection(), 'setRecordModificationState')) {
-            tap($accessToken->getConnection()->hasModifiedRecords(), function ($hasModifiedRecords) use ($accessToken, $fill) {
+            tap($accessToken->getConnection()->hasModifiedRecords(), function($hasModifiedRecords) use ($accessToken, $fill) {
                 $accessToken->forceFill($fill)->save();
                 $accessToken->getConnection()->setRecordModificationState($hasModifiedRecords);
             });
@@ -86,7 +86,7 @@ class OAuthGuard
     protected function getTokenFromRequest(Request $request): ?string
     {
         if (is_callable(OAuth::$accessTokenRetrievalCallback)) {
-            return with(OAuth::$accessTokenRetrievalCallback, function ($accessTokenRetrievalCallback) use ($request) {
+            return with(OAuth::$accessTokenRetrievalCallback, function($accessTokenRetrievalCallback) use ($request) {
                 return $accessTokenRetrievalCallback($request);
             });
         }
@@ -109,7 +109,7 @@ class OAuthGuard
         $isValid = $this->hasValidProvider($accessToken->tokenable);
 
         if (is_callable(OAuth::$accessTokenAuthenticationCallback)) {
-            $isValid = with(OAuth::$accessTokenAuthenticationCallback, function ($accessTokenAuthenticationCallback) use ($accessToken, $isValid) {
+            $isValid = with(OAuth::$accessTokenAuthenticationCallback, function($accessTokenAuthenticationCallback) use ($accessToken, $isValid) {
                 return $accessTokenAuthenticationCallback($accessToken, $isValid);
             });
         }

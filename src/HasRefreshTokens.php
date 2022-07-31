@@ -19,7 +19,7 @@ trait HasRefreshTokens
     public static function refreshToken(Request $request): Token
     {
         if (is_callable(OAuth::$accessTokenRetrievalCallback)) {
-            $token = with(OAuth::$accessTokenRetrievalCallback, function ($accessTokenRetrievalCallback) use ($request) {
+            $token = with(OAuth::$accessTokenRetrievalCallback, function($accessTokenRetrievalCallback) use ($request) {
                 return $accessTokenRetrievalCallback($request);
             });
         } else {
@@ -53,7 +53,7 @@ trait HasRefreshTokens
 
         if (method_exists($refreshToken->getConnection(), 'hasModifiedRecords') &&
             method_exists($refreshToken->getConnection(), 'setRecordModificationState')) {
-            tap($refreshToken->getConnection()->hasModifiedRecords(), function ($hasModifiedRecords) use ($refreshToken, $fill) {
+            tap($refreshToken->getConnection()->hasModifiedRecords(), function($hasModifiedRecords) use ($refreshToken, $fill) {
                 $refreshToken->forceFill($fill)->save();
                 $refreshToken->getConnection()->setRecordModificationState($hasModifiedRecords);
             });

@@ -60,7 +60,7 @@ trait HasAccessTokens
      */
     private function purgeToken(string $device): int
     {
-        $multipleDevices = config('oauth.multiple_devices');
+        $multipleDevices  = config('oauth.multiple_devices');
         $concurrentDevice = config('oauth.concurrent_device');
 
         if ($multipleDevices && $concurrentDevice) {
@@ -73,12 +73,12 @@ trait HasAccessTokens
                 $this->tokens()->getForeignKeyName() => $this->tokens()->getParentKey(),
                 $this->tokens()->getMorphType() => $this->tokens()->getMorphClass(),
             ])
-            ->when($multipleDevices || $concurrentDevice, function ($query) use ($multipleDevices, $concurrentDevice, $device) {
+            ->when($multipleDevices || $concurrentDevice, function($query) use ($multipleDevices, $concurrentDevice, $device) {
                 $query
-                    ->unless($multipleDevices, function ($query) use ($device) {
+                    ->unless($multipleDevices, function($query) use ($device) {
                         $query->whereNotIn('device', [$device]);
                     })
-                    ->unless($concurrentDevice, function ($query) use ($device) {
+                    ->unless($concurrentDevice, function($query) use ($device) {
                         $query->where('device', $device);
                     });
             })

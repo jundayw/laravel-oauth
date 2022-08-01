@@ -226,15 +226,17 @@ class User extends Authenticatable implements HasAccessTokensContract
 ```php
 use Illuminate\Http\Request;
 
-Route::post('/tokens/create', function (Request $request) {
-    return $request->user()->createToken($request->token_name, $request->device_name, ['check-status', 'place-orders'])->toArray();
+Route::post('/tokens/create', function(Request $request) {
+    return $request->user()
+        ->createToken($request->token_name, $request->device_name, ['check-status', 'place-orders'])
+        ->toArray();
 });
 ```
 
 你可以使用 `HasAccessTokens` trait 提供的 `tokens` Eloquent 关系访问用户的所有令牌：
 
 ```php
-foreach ($user->tokens as $token) {
+foreach($user->tokens as $token) {
     //
 }
 ```
@@ -245,7 +247,7 @@ foreach ($user->tokens as $token) {
 use Illuminate\Http\Request;
 use Jundayw\LaravelOAuth\RefreshToken;
 
-Route::post('/tokens/refresh', function (Request $request, RefreshToken $refreshToken) {
+Route::post('/tokens/refresh', function(Request $request, RefreshToken $refreshToken) {
     return $refreshToken::refreshToken($request)->toArray();
 });
 ```
@@ -257,7 +259,7 @@ Route::post('/tokens/refresh', function (Request $request, RefreshToken $refresh
 `scopes` 中间件可以分配给一个路由，以验证传入请求的令牌是否具有所有列出的能力：
 
 ```php
-Route::get('/orders', function () {
+Route::get('/orders', function() {
     // Token has both "check-status" and "place-orders" abilities...
 })->middleware(['auth:client', 'scopes:check-status,place-orders']);
 ```
@@ -265,7 +267,7 @@ Route::get('/orders', function () {
 `scope` 中间件可以分配给一个路由，以验证传入请求的令牌是否具有至少一个列出的能力：
 
 ```php
-Route::get('/orders', function () {
+Route::get('/orders', function() {
     // Token has the "check-status" or "place-orders" ability...
 })->middleware(['auth:client', 'scope:check-status,place-orders']);
 ```
@@ -275,7 +277,7 @@ Route::get('/orders', function () {
 ```php
 use Illuminate\Http\Request;
 
-Route::middleware(['api', 'auth:client'])->get('/user', function (Request $request) {
+Route::middleware(['api', 'auth:client'])->get('/user', function(Request $request) {
     return $request->user();
 });
 ```
@@ -344,27 +346,30 @@ use Illuminate\Http\Request;
 use Jundayw\LaravelOAuth\RefreshToken;
 
 // 发布 user 令牌
-Route::get('/user', function (User $user) {
+Route::get('/user', function(User $user) {
     return $user->first()?->createToken('测试-user', 'APP')->toArray();
 });
 
 // 发布 manager 令牌，有作用域
-Route::get('/manager', function (Manager $manager) {
-    return $manager->first()?->createToken('测试-manager', 'PC', ['snsapi_base', 'snsapi_userinfo'])->toArray();
+Route::get('/manager', function(Manager $manager) {
+    return $manager->first()
+        ?->createToken('测试-manager', 'PC', ['snsapi_base', 'snsapi_userinfo'])
+        ->toArray();
 });
 
 // 获取 user 当前账户
-Route::middleware(['auth:user'])->post('/user-info', function (Request $request) {
+Route::middleware(['auth:user'])->post('/user-info', function(Request $request) {
     return $request->user();
 });
 
 // 获取 manager 当前账户，验证作用域
-Route::middleware(['auth:manager', ['scope:snsapi_userinfo']])->post('/manager-info', function (Request $request) {
-    return $request->user();
-});
+Route::middleware(['auth:manager', ['scope:snsapi_userinfo']])
+    ->post('/manager-info', function(Request $request) {
+        return $request->user();
+    });
 
 // 刷新当前账户
-Route::get('/refresh', function (\Illuminate\Http\Request $request) {
+Route::get('/refresh', function(\Illuminate\Http\Request $request) {
     return RefreshToken::refreshToken($request)->toArray();
 });
 ```

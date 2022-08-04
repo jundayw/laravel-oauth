@@ -18,6 +18,13 @@ class OAuthServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        config([
+            'auth.guards.oauth' => array_merge([
+                'driver' => 'oauth',
+                'provider' => null,
+            ], config('auth.guards.oauth', [])),
+        ]);
+
         if (!app()->configurationIsCached()) {
             $this->mergeConfigFrom(__DIR__ . '/../config/oauth.php', 'oauth');
         }
@@ -67,9 +74,9 @@ class OAuthServiceProvider extends ServiceProvider
      */
     protected function configureGuard()
     {
-        Auth::resolved(function($auth) {
-            $auth->extend('oauth', function($app, $name, array $config) use ($auth) {
-                return tap($this->createGuard($auth, $config), function($guard) {
+        Auth::resolved(function ($auth) {
+            $auth->extend('oauth', function ($app, $name, array $config) use ($auth) {
+                return tap($this->createGuard($auth, $config), function ($guard) {
                     $this->app->refresh('request', $guard, 'setRequest');
                 });
             });

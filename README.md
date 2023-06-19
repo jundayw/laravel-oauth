@@ -248,7 +248,7 @@ use Illuminate\Http\Request;
 use Jundayw\LaravelOAuth\RefreshToken;
 
 Route::post('/tokens/refresh', function(Request $request, RefreshToken $refreshToken) {
-    return $refreshToken::refreshToken($request)->toArray();
+    return $refreshToken->refreshToken($refreshToken->findTokenByRequest($request))->toArray();
 });
 ```
 
@@ -369,7 +369,7 @@ Route::middleware(['auth:manager', ['scope:snsapi_userinfo']])
     });
 
 // 刷新当前账户
-Route::get('/refresh', function(\Illuminate\Http\Request $request) {
-    return RefreshToken::refreshToken($request)->toArray();
+Route::get('/refresh', function(\Illuminate\Http\Request $request, \Jundayw\LaravelOAuth\RefreshToken $refreshToken) {
+    return $refreshToken->refreshToken($refreshToken->findTokenByRefreshToken($request->bearerToken()))->toArray();
 });
 ```

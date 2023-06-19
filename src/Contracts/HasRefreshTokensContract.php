@@ -2,7 +2,6 @@
 
 namespace Jundayw\LaravelOAuth\Contracts;
 
-use Illuminate\Http\Request;
 use Jundayw\LaravelOAuth\Token;
 
 interface HasRefreshTokensContract
@@ -10,8 +9,8 @@ interface HasRefreshTokensContract
     /**
      * Refresh a new access token for the user.
      *
-     * @param Request $request
+     * @param $refreshToken
      * @return Token
      */
-    public static function refreshToken(Request $request): Token;
+    public function refreshToken($refreshToken): Token;
 }

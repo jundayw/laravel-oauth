@@ -13,14 +13,10 @@ class Token implements Arrayable, Jsonable
     use Signature;
 
     private $token;
-    private $plainTextAccessToken;
-    private $plainTextRefreshToken;
 
-    public function __construct(HasTokenableContract $token, $plainTextAccessToken, $plainTextRefreshToken)
+    public function __construct(HasTokenableContract $token)
     {
-        $this->token                 = $token;
-        $this->plainTextAccessToken  = $plainTextAccessToken;
-        $this->plainTextRefreshToken = $plainTextRefreshToken;
+        $this->token = $token;
     }
 
     /**

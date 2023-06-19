@@ -5,21 +5,27 @@ namespace Jundayw\LaravelOAuth;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Jundayw\LaravelOAuth\Contracts\HasTokenableContract;
 use Jundayw\LaravelOAuth\Exceptions\InvalidRefreshTokenException;
 use Jundayw\LaravelOAuth\Exceptions\RefreshTokenExpiredException;
 
 trait HasRefreshTokens
 {
     /**
-     * Refresh a new access token for the user.
+     * The refresh token the user is using for the current request.
+     */
+    protected $refreshToken;
+
+    /**
+     * Find the token by request.
      *
      * @param Request $request
-     * @return Token
+     * @return HasTokenableContract|null
      */
-    public static function refreshToken(Request $request): Token
+    public function findTokenByRequest(Request $request): ?HasTokenableContract
     {
         if (is_callable(OAuth::$accessTokenRetrievalCallback)) {
-            $token = with(OAuth::$accessTokenRetrievalCallback, function($accessTokenRetrievalCallback) use ($request) {
+            $token = with(OAuth::$accessTokenRetrievalCallback, function ($accessTokenRetrievalCallback) use ($request) {
                 return $accessTokenRetrievalCallback($request);
             });
         } else {
@@ -34,8 +40,28 @@ trait HasRefreshTokens
             throw new InvalidRefreshTokenException();
         }
 
-        $refreshToken = static::where('refresh_token', $plaintext->get('refresh_token'))->first();
+        return $this->refreshToken = static::where('refresh_token', $plaintext->get('refresh_token'))->first();
+    }
 
+    /**
+     * Find the token by refresh token.
+     *
+     * @param string $refreshToken
+     * @return HasTokenableContract|null
+     */
+    public function findTokenByRefreshToken(string $refreshToken): ?HasTokenableContract
+    {
+        return $this->refreshToken = static::where('refresh_token', $refreshToken)->first();
+    }
+
+    /**
+     * Refresh a new access token for the user.
+     *
+     * @param $refreshToken
+     * @return Token
+     */
+    public function refreshToken($refreshToken): Token
+    {
         if (is_null($refreshToken)) {
             throw new InvalidRefreshTokenException();
         }
@@ -53,7 +79,7 @@ trait HasRefreshTokens
 
         if (method_exists($refreshToken->getConnection(), 'hasModifiedRecords') &&
             method_exists($refreshToken->getConnection(), 'setRecordModificationState')) {
-            tap($refreshToken->getConnection()->hasModifiedRecords(), function($hasModifiedRecords) use ($refreshToken, $fill) {
+            tap($refreshToken->getConnection()->hasModifiedRecords(), function ($hasModifiedRecords) use ($refreshToken, $fill) {
                 $refreshToken->forceFill($fill)->save();
                 $refreshToken->getConnection()->setRecordModificationState($hasModifiedRecords);
             });
@@ -61,7 +87,7 @@ trait HasRefreshTokens
             $refreshToken->forceFill($fill)->save();
         }
 
-        return new Token($refreshToken, $plainTextAccessToken, $plainTextRefreshToken);
+        return new Token($refreshToken);
     }
 
 }

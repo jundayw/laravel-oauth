@@ -19,6 +19,9 @@
         }
     },
     "extra": {
+        "branch-alias": {
+            "dev-main": "3.x-dev"
+        },
         "laravel": {
             "providers": [
                 "Jundayw\\LaravelOAuth\\OAuthServiceProvider"

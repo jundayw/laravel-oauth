@@ -38,7 +38,6 @@ php artisan vendor:publish --provider="Jundayw\LaravelOAuth\OAuthServiceProvider
 
 [![Latest Stable Version](https://poser.pugx.org/jundayw/laravel-oauth/v)](https://packagist.org/packages/jundayw/laravel-oauth)
 [![Total Downloads](https://poser.pugx.org/jundayw/laravel-oauth/downloads)](https://packagist.org/packages/jundayw/laravel-oauth)
-[![Latest Stable Version](https://poser.pugx.org/jundayw/laravel-oauth/v)](https://packagist.org/packages/jundayw/laravel-oauth)
 [![Latest Unstable Version](https://poser.pugx.org/jundayw/laravel-oauth/v/unstable)](https://packagist.org/packages/jundayw/laravel-oauth)
 [![License](https://poser.pugx.org/jundayw/laravel-oauth/license)](https://packagist.org/packages/jundayw/laravel-oauth)
 [![PHP Version Require](https://poser.pugx.org/jundayw/laravel-oauth/require/php)](https://packagist.org/packages/jundayw/laravel-oauth)
